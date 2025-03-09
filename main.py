@@ -6,9 +6,9 @@ import asyncio
 import base64
 import io
 
-API_TOKEN = "___TELEGRAM_BOT_TOKEN___"
+API_TOKEN = "8121870262:AAHW3f17quznG4dTamMFVYwpYgnbukw0St4"
 
-PROBIVAPI_KEY = "___PROBIVAPI_KEY___"
+PROBIVAPI_KEY = "58ea8029-c366-4a2e-aaba-c87e335e65cd"
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
