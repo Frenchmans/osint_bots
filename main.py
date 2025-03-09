@@ -35,18 +35,10 @@ def message(message):
 		bot.send_message(message.chat.id, '⏳ Обрабатываю запрос..')
 		a = random.randint(4,7)
 		time.sleep(a)
-		bot.send_message(message.chat.id, '👀 Подписка не найдена.')
-		time.sleep(1)
-		bot.send_message(message.chat.id, '*В связи с тем что основного бота забанили, данный резервный бот БУДЕТ работать только по подписке!*\nСтоимость `'+str(config.price)+'₽`', reply_markup=keyboard.inline_buy, parse_mode='Markdown')
-@bot.message_handler(content_types=['document'])
 def document_react(message):
 	bot.send_message(message.chat.id, '⏳ Обрабатываю запрос..')
 	a = random.randint(4,7)
 	time.sleep(a)
-	bot.send_message(message.chat.id, '👀 Подписка не найдена.')
-	time.sleep(1)
-	bot.send_message(message.chat.id, '*В связи с тем что основного бота забанили, данный резервный бот БУДЕТ работать только по подписке!*\nСтоимость `'+str(config.price)+'₽`', reply_markup=keyboard.inline_buy, parse_mode='Markdown')
-@bot.callback_query_handler(func=lambda call: True)
 def step_buy(call):
 	if call.data == 'buying':
 		link_pay = 'https://oplata.qiwi.com/create?publicKey='+config.QIWI_PUBLICKEY+'&amount=190&comment='+str(random.randint(11111,99999))+'-EyeGod'
