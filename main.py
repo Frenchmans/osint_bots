@@ -7,11 +7,9 @@ import base64
 import io
 
 # Telegram bot token
-
 API_TOKEN = "8121870262:AAHW3f17quznG4dTamMFVYwpYgnbukw0St4"
 
 # ProbivAPI secret key
-
 PROBIVAPI_KEY = "58ea8029-c366-4a2e-aaba-c87e335e65cd"
 
 # Initialize bot and dispatcher
@@ -69,7 +67,8 @@ async def text(message: Message):
 ┣ 🏠 Адреса (CallApp): {', '.join([a.get('street') for a in json_response.get('callapp', {}).get('addresses', [])])}
 ┣ 📝 Описание (CallApp): {json_response.get('callapp', {}).get('description', 'Not found')}
 ┣ 🌐 ФИО (EyeCon): {json_response.get('eyecon', 'Not found')}
-┗ 🔎 ФИО (ViewCaller): {', '.join([v.get('name', 'Not found') for v in json_response.get('viewcaller', [])])}
+┣ 🔎 ФИО (ViewCaller): {', '.join([v.get('name', 'Not found') for v in json_response.get('viewcaller', [])])}
+"""
     
     # Отправка данных
     if pic_data and len(pic_data) > 0:
