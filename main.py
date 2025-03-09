@@ -6,71 +6,113 @@ import asyncio
 import base64
 import io
 
+# Telegram bot token
+
 API_TOKEN = "8121870262:AAHW3f17quznG4dTamMFVYwpYgnbukw0St4"
+
+# ProbivAPI secret key
 
 PROBIVAPI_KEY = "58ea8029-c366-4a2e-aaba-c87e335e65cd"
 
+# Initialize bot and dispatcher
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
 print("!BOT STARTED!")
 
+# Message handler that sends greeting when bot started
 @dp.message(Command(commands=['start', 'help']))
 async def send_welcome(message: Message):
+    """
+    This handler will be called when user sends `/start` or `/help` command
+    """
     await message.reply("Osint Bot by Frenchmans")
 
+
+# This is the main probiv function that returns a json and formats it, then sends it
 @dp.message()
 async def text(message: Message):
-    nomer = message.text.strip()
-    print(f"Запрос: {nomer}")
-    
+    # Get the message text and interpret it as a phone number
+    nomer = message.text
+    print(nomer)
+
+    # The endpoint for the probiv API that passes as a query the phone number
     url = f"https://probivapi.com/api/phone/info/{nomer}"
     pic_url = f"https://probivapi.com/api/phone/pic/{nomer}"
-    head = {"X-Auth": PROBIVAPI_KEY}
 
+    # Necessary headers for the API to work
+    head = {
+        # API key that you can get by subscribing to the API
+        "X-Auth": PROBIVAPI_KEY
+    }
+
+    # Send the request with all the parameters and print the result for debugging
     response = requests.get(url, headers=head)
-    print(f"Ответ API: {response.text}")
-    
+    print(response.text)
+
+    # Send the request for the profile picture and print the result for debugging
+    pic_response = requests.get(pic_url, headers=head)
+    # print(pic_response.text)
+
+    # Load the data of the response into a JSON object
     try:
         json_response = response.json()
-    except Exception as e:
-        print(f"Ошибка парсинга JSON: {e}")
+    except Exception:
         json_response = {}
 
-    pic_response = requests.get(pic_url, headers=head)
-    pic_data = None
+    # Decode picture from base64
+    try:
+        pic_data = base64.b64decode(pic_response.text)
+    except Exception:
+        pic_data = None
+
+    # Integrated CallApp API
+    callapp_data = json_response.get('callapp', {})
+    callapp_api_name = callapp_data.get('name', 'Not found')
+    callapp_emails = ', '.join([email.get('email') for email in callapp_data.get('emails', [])])
+    callapp_websites = ', '.join([site.get('websiteUrl') for site in callapp_data.get('websites', [])])
+    callapp_addresses = ', '.join([addr.get('street') for addr in callapp_data.get('addresses', [])])
+    callapp_description = callapp_data.get('description', 'Not found')
+    callapp_opening_hours = ', '.join([f"{day}: {', '.join(hours)}" for day, hours in callapp_data.get('openingHours', {}).items()])
+    callapp_lat = callapp_data.get('lat', 'Not found')
+    callapp_lng = callapp_data.get('lng', 'Not found')
+    callapp_spam_score = callapp_data.get('spamScore', 'Not found')
+    callapp_priority = callapp_data.get('priority', 'Not found')
+
+    # Integrated EyeCon API
+    eyecon_api_name = json_response.get('eyecon', 'Not found')
     
-    if pic_response.status_code == 200:
-        try:
-            if "error" in pic_response.text.lower():
-                raise ValueError("API вернул ошибку вместо изображения")
-            
-            if pic_response.text.startswith("data:image"):
-                pic_response.text = pic_response.text.split(",", 1)[-1]
-            
-            pic_data = base64.b64decode(pic_response.text)
-        except (base64.binascii.Error, ValueError) as e:
-            print(f"Ошибка при обработке изображения: {e}")
-            pic_data = None
+    # Integrated ViewCaller API
+    viewcaller_name_list = [tag.get('name', 'Not found') for tag in json_response.get('viewcaller', [])]
+    viewcaller_api_name = ', '.join(viewcaller_name_list)
 
     dosie = f"""┏ ✅ Dosie for {nomer}
-┣ 📱 ФИО (CallApp): {json_response.get('callapp', {}).get('name', 'Not found')}
-┣ 📧 Emails (CallApp): {', '.join([e.get('email') for e in json_response.get('callapp', {}).get('emails', [])])}
-┣ 🌐 Сайты (CallApp): {', '.join([s.get('websiteUrl') for s in json_response.get('callapp', {}).get('websites', [])])}
-┣ 🏠 Адреса (CallApp): {', '.join([a.get('street') for a in json_response.get('callapp', {}).get('addresses', [])])}
-┣ 📝 Описание (CallApp): {json_response.get('callapp', {}).get('description', 'Not found')}
-┣ 🌐 ФИО (EyeCon): {json_response.get('eyecon', 'Not found')}
-┣ 🔎 ФИО (ViewCaller): {', '.join([v.get('name', 'Not found') for v in json_response.get('viewcaller', [])])}
+┣ 📱 ФИО (CallApp): {callapp_api_name}
+┣ 📧 Emails (CallApp): {callapp_emails}
+┣ 🌐 Сайты (CallApp): {callapp_websites}
+┣ 🏠 Адреса (CallApp): {callapp_addresses}
+┣ 📝 Описание (CallApp): {callapp_description}
+┣ 🕒 Часы работы (CallApp): {callapp_opening_hours}
+┣ 🌍 Координаты (CallApp): {callapp_lat}, {callapp_lng}
+┣ ⚠️ Spam Score (CallApp): {callapp_spam_score}
+┣ ⭐ Priority (CallApp): {callapp_priority}
+┣ 🌐 ФИО (EyeCon): {eyecon_api_name}
+┣ 🔎 ФИО (ViewCaller): {viewcaller_api_name}
 ┗ 👇 Еще...
+                        
+Код бота: https://github.com/Frenchmans/osint_bot/
 
 Пробив API: https://probivapi.com"""
-    
-    if pic_data and len(pic_data) > 0:
+
+    # Send the formatted data to the user on Telegram
+    if pic_data:
         pic_bytes = bytes(pic_data)
         await message.answer_photo(BufferedInputFile(pic_bytes, filename=f"{nomer}.jpg"), caption=dosie)
     else:
         await message.answer(dosie)
 
+
+# Main loop
 async def main():
     await dp.start_polling(bot, skip_updates=True)
 
