@@ -10,7 +10,7 @@ import io
 API_TOKEN = "8121870262:AAHW3f17quznG4dTamMFVYwpYgnbukw0St4"
 
 # ProbivAPI secret key
-PROBIVAPI_KEY = "58ea8029-c366-4a2e-aaba-c87e335e65cd"
+PROBIVAPI_KEY = "0bda7185-82fa-413f-b8dc-5822141f6bb7"
 
 # Initialize bot and dispatcher
 bot = Bot(token=API_TOKEN)
