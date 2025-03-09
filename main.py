@@ -68,7 +68,9 @@ async def text(message: Message):
 ┣ 📝 Описание (CallApp): {json_response.get('callapp', {}).get('description', 'Not found')}
 ┣ 🌐 ФИО (EyeCon): {json_response.get('eyecon', 'Not found')}
 ┣ 🔎 ФИО (ViewCaller): {', '.join([v.get('name', 'Not found') for v in json_response.get('viewcaller', [])])}
-"""
+┗ 👇 Контакты создателя:
+
+ТГ: @Ne_nado_mena"""
     
     # Отправка данных
     if pic_data and len(pic_data) > 0:
@@ -82,3 +84,4 @@ async def main():
 
 if __name__ == '__main__':
     asyncio.run(main())
+
